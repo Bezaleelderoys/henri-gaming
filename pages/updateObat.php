@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<?php include "header.php"; ?>
+<?php include "../components/header.php"; ?>
 <div class="container mt-5">
     <h2>Update Obat</h2>
     <form method="post">
@@ -79,4 +79,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button type="submit" class="btn btn-primary">Update</button>
     </form>
 </div>
-<?php include "footer.php"; ?>
+<?php include "../components/footer.php"; ?>

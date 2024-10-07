@@ -9,13 +9,13 @@ if (!isset($_SESSION['login'])) {
 }
 
 
-include "header.php";
+include "../components/header.php";
 ?>
 
 
 <div class="container-fluid mt-5 pb-5">
     <a href="inputKaryawan.php" class="btn btn-primary mb-3">Create</a>
-    <table class="table table-striped">
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th scope="col">ID karyawan</th>
@@ -47,4 +47,4 @@ include "header.php";
         </tbody>
     </table>
 </div>
-<?php include "footer.php";
+<?php include "../components/footer.php";

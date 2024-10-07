@@ -7,7 +7,7 @@ if (!isset($_SESSION['login'])) {
   exit;
 }
 
-include "header.php";
+include "../components/header.php";
 
 // Query to get the count of rows from each table
 $obatCountQuery = mysqli_query($conn, "SELECT COUNT(*) AS count FROM tb_obat");
@@ -62,4 +62,4 @@ $transaksiCount = mysqli_fetch_assoc($transaksiCountQuery)['count'];
   </div>
 </div>
 
-<?php include "footer.php"; ?>
+<?php include "../components/footer.php"; ?>

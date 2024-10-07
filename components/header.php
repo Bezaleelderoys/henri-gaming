@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../bootstrap-5.3.3-dist/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -29,6 +29,12 @@
                     <li class="nav-item">
                         <a class="nav-link  text-white" href="pelanggan.php">Pelanggan</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link  text-white" href="user.php">User</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link  text-white" href="supplier.php">Supplier</a>
+                    </li>
                     <?php
 
                     if (isset($_SESSION)) {
@@ -47,7 +53,7 @@
                 if (isset($_SESSION)) {
                 ?>
 
-                    <a class="nav-link disabled text-white"><?= $_SESSION['username'] ?></a>
+                    <a class="nav-link disabled text-white">Selamat datang, <?= $_SESSION['username'] ?></a>
                 <?php
                 }
 

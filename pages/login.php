@@ -18,10 +18,11 @@ if (isset($_POST['login'])) {
   }
 }
 
-include "header.php";
+include "../components/header.php";
 ?>
 
 <div class="container-fluid mt-5 pb-5">
+  <h1>Login</h1>
   <form action="login.php" method="post">
     <div class="mb-3">
       <label class="form-label">Username</label>
@@ -34,4 +35,4 @@ include "header.php";
     <button type="submit" name="login" class="btn btn-primary">Submit</button>
   </form>
 </div>
-<?php include "footer.php";
+<?php include "../components/footer.php";
