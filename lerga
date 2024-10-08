@@ -1,0 +1,173 @@
+<?php
+session_start();
+include('../conn.php');
+
+// Process transaksi form submission
+if (isset($_POST['transaksi'])) {
+
+    $id_karyawan = $_POST['id_karyawan'];
+    $id_pelanggan = $_POST['id_pelanggan'];
+    $tgltransaksi = $_POST['tgltransaksi'];
+    $kategoripelanggan = $_POST['kategoripelanggan'];
+
+    $edi = mysqli_query($conn, "INSERT INTO tb_transaksi VALUES (NULL, $id_pelanggan, $id_karyawan, '$tgltransaksi', '$kategoripelanggan', NULL, NULL, NULL)");
+
+    // Store the transaction ID in session after transaksi submission
+    $_SESSION['idtransaksi'] = mysqli_insert_id($conn);
+}
+
+// Process tambah form submission
+if (isset($_POST['tambah'])) {
+    $idtransaksi = $_SESSION['idtransaksi'];
+    $idobat = $_POST['idobat'];
+    $jumlah = $_POST['jumlah'];
+
+    $getObat = mysqli_query($conn, "SELECT hargajual FROM tb_obat WHERE id_obat = $idobat");
+    $fetchObat = mysqli_fetch_assoc($getObat);
+
+    $hargasatuan = $fetchObat['hargajual'];
+    $totalharga = $jumlah * $hargasatuan;
+
+    $query = mysqli_query($conn, "INSERT INTO tb_detail_transaksi VALUES (NULL, $idtransaksi, $idobat, $jumlah, $hargasatuan, $totalharga)");
+}
+
+// Process submit form
+if (isset($_POST['submit'])) {
+    $idtransaksi = $_SESSION['idtransaksi'];
+    $totalbayar = $_POST['totalbayar'];
+    $bayar = $_POST['bayar'];
+    $kembali = $bayar - $totalbayar;
+
+    $query = mysqli_query($conn, "UPDATE tb_transaksi SET totalbayar = $totalbayar, bayar = $bayar, kembali = $kembali WHERE idtransaksi = $idtransaksi");
+
+    // Clear the session after transaction is completed
+    unset($_SESSION['idtransaksi']);
+
+    header("Location: ../transaksi.php");
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <?php
+        // Only show the transaksi form if there's no ongoing transaction
+        if (!isset($_SESSION['idtransaksi'])) {
+        ?>
+            <form action="inputtransaksi.php" method="POST">
+                <label for="" class="form-label">Pelanggan</label>
+                <select class="form-control" name="id_pelanggan">
+                    <?php
+                    $data = mysqli_query($conn, "SELECT * FROM tb_pelanggan");
+
+                    while ($e = mysqli_fetch_assoc($data)) {
+                    ?>
+                        <option value="<?= $e['idpelanggan'] ?>"><?= $e['namalengkap'] ?></option>
+                    <?php } ?>
+                </select>
+                <label for="" class="form-label">Karyawan</label>
+                <select class="form-control" name="id_karyawan">
+                    <?php
+                    $data = mysqli_query($conn, "SELECT * FROM tb_karyawan");
+
+                    while ($e = mysqli_fetch_assoc($data)) {
+                    ?>
+                        <option value="<?= $e['idkaryawan'] ?>"><?= $e['namakaryawan'] ?></option>
+                    <?php } ?>
+                </select>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Tanggal Transaksi</label>
+                    <input type="date" class="form-control" name="tgltransaksi">
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Kategori Pelanggan</label>
+                    <input type="text" class="form-control" name="kategoripelanggan">
+                </div>
+                <button name="transaksi" type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        <?php
+        } else {
+            $idtransaksi = $_SESSION['idtransaksi'];
+        ?>
+            <div class="row">
+                <div class="col-sm-6">
+                    <form action="inputtransaksi.php" method="post">
+                        <select name="idobat" id="" class="form-control">
+                            <?php
+                            $query = mysqli_query($conn, "SELECT id_obat, namaobat FROM tb_obat");
+                            while ($data = mysqli_fetch_assoc($query)) {
+                            ?>
+                                <option value="<?= $data['id_obat'] ?>"><?= $data['namaobat'] ?></option>
+                            <?php
+                            }
+                            ?>
+                        </select>
+                        <label for="" class="form-label">Jumlah</label>
+                        <input type="number" name="jumlah" class="form-control">
+                        <input type="submit" value="Tambah" name="tambah" class="btn btn-secondary mt-3">
+                    </form>
+                </div>
+
+                <div class="col-sm-6">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Harga Satuan</th>
+                                <th>Jumlah</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $query = mysqli_query($conn, "SELECT tb_detail_transaksi.*, tb_obat.namaobat 
+                                FROM tb_detail_transaksi 
+                                INNER JOIN tb_obat ON tb_detail_transaksi.idobat = tb_obat.id_obat
+                                WHERE idtransaksi = $idtransaksi");
+
+                            while ($data = mysqli_fetch_assoc($query)) {
+                            ?>
+                                <tr>
+                                    <td><?= $data['namaobat'] ?></td>
+                                    <td><?= $data['hargasatuan'] ?></td>
+                                    <td><?= $data['jumlah'] ?></td>
+                                    <td><?= $data['totalharga'] ?></td>
+                                </tr>
+                            <?php
+                            }
+
+                            $query = mysqli_query($conn, "SELECT SUM(totalharga) AS total FROM tb_detail_transaksi WHERE idtransaksi = $idtransaksi");
+                            $total = mysqli_fetch_assoc($query);
+                            ?>
+                            <tr>
+                                <td colspan="3">Total</td>
+                                <td><?= $total['total'] ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <form action="inputtransaksi.php" method="post">
+                        <input type="hidden" name="idtransaksi" value="<?= $idtransaksi ?>">
+                        <input type="hidden" name="totalbayar" value="<?= $total['total'] ?>">
+                        <label for="" class="form-label">Bayar</label>
+                        <input type="number" name="bayar" class="form-control">
+                        <input type="submit" value="Bayar" name="submit" class="btn btn-primary mt-3">
+                    </form>
+                </div>
+            </div>
+        <?php
+        }
+        ?>
+    </div>
+</body>
+
+</html>
