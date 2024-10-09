@@ -1,0 +1,29 @@
+<?php
+include "koneksi.php";
+
+// Ambil data dari form dan sanitasi input
+$namalengkap = mysqli_real_escape_string($koneksi, $_POST['namalengkap']);
+$alamat = mysqli_real_escape_string($koneksi, $_POST['alamat']);
+$telp = mysqli_real_escape_string($koneksi, $_POST['telp']);
+$usia = mysqli_real_escape_string($koneksi, $_POST['usia']);
+$buktifotoresep = $_FILES['buktifotoresep']['name'];
+$temp = $_FILES['buktifotoresep']['tmp_name'];
+
+$targetDir = 'images/' . $buktifotoresep;
+
+move_uploaded_file($temp, $targetDir);
+
+// Insert data pelanggan ke dalam database
+$insert_query = "INSERT INTO tb_pelanggan (namalengkap, alamat, telp, usia, buktifotoresep) 
+                 VALUES ('$namalengkap', '$alamat', '$telp', '$usia', '$buktifotoresep')";
+
+$hasil = mysqli_query($koneksi, $insert_query);
+
+if (!$hasil) {
+    echo "<script>alert('Gagal memasukkan data pelanggan: " . mysqli_error($koneksi) . "'); window.location.href='tambah_pelanggan.php';</script>";
+} else {
+    echo "<script>alert('Berhasil memasukkan data pelanggan'); window.location.href='view_pelanggan.php';</script>";
+}
+
+// Menutup koneksi
+mysqli_close($koneksi);
